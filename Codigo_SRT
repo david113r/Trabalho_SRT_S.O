@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct No {
+    int TempProc;
+    char NomeProc[20];
+    struct No* prox;
+};
+
+struct Lista {
+    No* cabeca, * cauda;
+    int n;
+
+    Lista() {
+        cabeca = cauda = NULL;
+
+    }
+
+    bool vazia() {
+        return (cabeca == NULL);
+    }
+
+    void inserirFinal(int TempProcesso, char NomeProcesso[]) {
+        No* novo = new No();
+        novo->TempProc = TempProcesso;
+        strcpy(novo->NomeProc, NomeProcesso);
+
+        if (vazia()) {
+            novo->prox = NULL;
+            cabeca = novo;
+            cauda = novo;
+        } else {
+            novo->prox = NULL;
+            cauda->prox = novo;
+            cauda = novo;
+        }
+
+    }
+
+    No* encontrarMenorProcesso() {
+        No* aux = cabeca;
+        No* menorProcesso = cabeca;
+
+        while (aux != NULL) {
+            if (aux->TempProc < menorProcesso->TempProc) {
+                menorProcesso = aux;
+            }
+            aux = aux->prox;
+        }
+
+        return menorProcesso;
+    }
+
+    void executarSrt() {
+        int tempoTotal = 0;
+
+        while (!vazia()) {
+            No* menor = encontrarMenorProcesso();
+            printf("Executando processo %s por 1 unidade de tempo\n", menor->NomeProc);
+            menor->TempProc--;
+
+            if (menor->TempProc == 0) {
+                printf("Processo %s concluido.\n", menor->NomeProc);
+                removerProcesso(menor);
+            }
+
+            tempoTotal++;
+        }
+
+        printf("Todos os processos concluídos em %d unidades de tempo.\n", tempoTotal);
+    }
+
+    void removerProcesso(No* processo) {
+        No* anterior = NULL;
+        No* atual = cabeca;
+
+        while (atual != NULL) {
+            if (atual == processo) {
+                if (anterior == NULL) {
+                    cabeca = atual->prox;
+                } else {
+                    anterior->prox = atual->prox;
+                }
+
+                if (atual == cauda) {
+                    cauda = anterior;
+                }
+
+                free(atual);
+
+                return;
+            }
+
+            anterior = atual;
+            atual = atual->prox;
+        }
+    }
+
+    void imprimir() {
+        No* aux = cabeca;
+        while (aux != NULL) {
+            printf("%s:%d->", aux->NomeProc, aux->TempProc);
+            aux = aux->prox;
+        }
+        printf("\n");
+    }
+};
+
+int main() {
+    char nomeProcesso[20];
+    int tempoProcesso;
+    Lista l;
+    int TempP;
+
+    printf("\nDigite o tempo de Processamento:");
+    scanf("%d",&TempP);
+
+    if(TempP>15){
+        printf("\nDigite um valor de 1 ate 15\n");
+        return 0;
+    }
+
+
+    for (int i = 0; i < TempP; i++) {
+        printf("\nDigite o nome do processo %d:", i);
+        scanf("%s", nomeProcesso);
+        printf("Digite o tempo do processo %d:", i);
+        scanf("%d", &tempoProcesso);
+        printf("\n");
+
+        l.inserirFinal(tempoProcesso, nomeProcesso);
+    }
+
+    l.imprimir();
+    l.executarSrt();
+
+    return 0;
+}
+
+
